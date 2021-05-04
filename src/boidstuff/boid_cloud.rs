@@ -58,6 +58,15 @@ fn match_velocities(boid: &mut Boid, closest: &Vec<Boid>) {
         boid.vel += (avg_vel - boid.vel) * ALIGNMENT;
     }
 }
+fn random_vel_change(boid: &mut Boid, rng: &mut ThreadRng){
+    let angle = (rng.gen::<f32>() - 0.5) * MAX_RAND_CHANGE;
+    let rot_matr = glam::Mat2::from_cols_array(&[
+        angle.cos(), 
+        angle.sin(), 
+        -angle.sin(), 
+        angle.cos()]);
+    boid.vel = rot_matr * boid.vel;
+}
 
 impl BoidCloud {
     pub fn new(
@@ -82,7 +91,7 @@ impl BoidCloud {
         })
     }
 
-    pub fn update(&mut self, width: f32, height: f32) {
+    pub fn update(&mut self, width: f32, height: f32, rng: &mut ThreadRng) {
         let mut boids = self.boids.clone();
         for mut boid in self.boids.iter_mut() {
             boids.sort_unstable_by(|a, b| {
@@ -96,7 +105,8 @@ impl BoidCloud {
                 fly_towards_center(&mut boid, &closest);
                 avoid_other_boids(&mut boid, &closest);
                 match_velocities(&mut boid, &closest);
-            }            
+            }
+            random_vel_change(&mut boid, rng);
             boid.limit_speed();
             boid.keep_within_bounds(width, height);
             boid.update_pos();

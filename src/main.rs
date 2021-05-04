@@ -20,10 +20,15 @@ fn main() -> GameResult {
     } else {
         std::path::PathBuf::from("./resources")
     };
+    let window_mode = conf::WindowMode::default()
+        .fullscreen_type(conf::FullscreenType::Desktop)
+        //.maximized(true)
+        .borderless(true);
     // Make a Context.
     let (mut ctx, mut event_loop) = ContextBuilder::new("my_game", "Cool Game Author")
-        .window_setup(conf::WindowSetup::default().title("Astroblasto!"))
-        .window_mode(conf::WindowMode::default().dimensions(1500.0, 1000.0))
+        .window_setup(conf::WindowSetup::default().title("Boid Flocking Simulation"))
+        //.window_mode(conf::WindowMode::default().dimensions(1500.0, 1000.0))
+        .window_mode(window_mode)
         .add_resource_path(resource_dir)
         .build()?;
     // Create an instance of your event handler.
@@ -68,8 +73,20 @@ impl MainState {
 impl EventHandler for MainState {
     fn update(&mut self, _ctx: &mut Context) -> GameResult<()> {
         // Update code here...
-        self.boid_cloud.update(self.width, self.height);
+        self.boid_cloud.update(self.width, self.height, &mut self.rng);
         Ok(())
+    }
+    fn key_down_event(
+        &mut self,
+        ctx: &mut Context,
+        keycode: event::KeyCode,
+        _keymod: event::KeyMods,
+        _repeat: bool,
+    ) {
+        match keycode {
+            event::KeyCode::Escape | event::KeyCode::Q => event::quit(ctx),
+            _ => (), // Do nothing
+        }
     }
     // #[cfg(debug_assertions)]
     // fn draw(&mut self, ctx: &mut Context) -> GameResult<()> {
