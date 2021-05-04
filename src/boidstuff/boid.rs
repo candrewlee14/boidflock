@@ -39,7 +39,8 @@ impl Boid {
             .rotation(self.facing_angle())
             .offset(Point2::new(0.5, 0.5))
             .scale(Vec2::new(IMG_SCALE, IMG_SCALE))
-            .color(Color::new(1. - self.min_dist / COLOR_DIVISOR, 0., self.min_dist / COLOR_DIVISOR, 1.))
+            //.color(Color::new(1. - self.min_dist / COLOR_DIVISOR, 0., self.min_dist / COLOR_DIVISOR, 1.))
+            .color(Color::new(1. - self.facing_angle() / (2.*std::f32::consts::PI), self.facing_angle().cos(), self.facing_angle()/(2.*std::f32::consts::PI), 1.))
     }
     pub fn keep_within_bounds(&mut self, width: f32, height: f32) {
         if self.pos[0] < EDGE_TURN_MARGIN {
