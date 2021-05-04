@@ -23,7 +23,7 @@ fn main() -> GameResult {
     // Make a Context.
     let (mut ctx, mut event_loop) = ContextBuilder::new("my_game", "Cool Game Author")
         .window_setup(conf::WindowSetup::default().title("Astroblasto!"))
-        .window_mode(conf::WindowMode::default().dimensions(900.0, 1000.0))
+        .window_mode(conf::WindowMode::default().dimensions(1500.0, 1000.0))
         .add_resource_path(resource_dir)
         .build()?;
     // Create an instance of your event handler.
@@ -51,7 +51,7 @@ impl MainState {
         let mut rng = rand::thread_rng();
         // Load/create resources such as images here.
         let (width, height) = graphics::drawable_size(ctx);
-        let boid_cloud = BoidCloud::new(1200, width, height, &mut rng)?;
+        let boid_cloud = BoidCloud::new(500, width, height, &mut rng)?;
         let assets = Assets::new(ctx)?;
         let img_batch = SpriteBatch::new(assets.boid_image.clone());
         Ok(Self {

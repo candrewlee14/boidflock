@@ -1,5 +1,5 @@
 pub use ggez::{
-    graphics::{self, spritebatch::SpriteBatch, DrawParam},
+    graphics::{self, spritebatch::SpriteBatch, DrawParam, Color},
     Context, GameResult,
 };
 pub use glam::Vec2;
@@ -10,12 +10,15 @@ pub use std::collections::HashSet;
 pub type Point2 = Vec2;
 pub type Vector2 = Vec2;
 
-pub const COHERENCE: f32 = 0.0005;
-pub const SEPARATION: f32 = 0.005;
-pub const ALIGNMENT: f32 = 0.05;
-pub const AVOID_RANGE: f32 = 20.;
+pub const COHERENCE: f32 = 0.005;
+pub const SEPARATION: f32 = 0.045;
+pub const ALIGNMENT: f32 = 0.25;
+pub const AVOID_RANGE: f32 = 30.;
 pub const VISUAL_RANGE: f32 = 50.;
 pub const MAX_VELOC: f32 = 5.;
-pub const MAX_NEIGHBORS: usize = 8;
+pub const MIN_VELOC: f32 = 2.;
+pub const MAX_NEIGHBORS: usize = 20;
 pub const EDGE_TURN_MARGIN: f32 = 20.;
-pub const TURN_FACTOR: f32 = 1.;
+pub const TURN_FACTOR: f32 = 1.15;
+pub const IMG_SCALE: f32 = 0.4;
+pub const COLOR_DIVISOR: f32 = 500.;

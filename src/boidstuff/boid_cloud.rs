@@ -92,10 +92,11 @@ impl BoidCloud {
             });
             if self.boid_count >= MAX_NEIGHBORS {
                 let closest = boids[1..MAX_NEIGHBORS].to_vec();
+                boid.min_dist = boid.distance_to(&closest[0]);
                 fly_towards_center(&mut boid, &closest);
                 avoid_other_boids(&mut boid, &closest);
                 match_velocities(&mut boid, &closest);
-            }
+            }            
             boid.limit_speed();
             boid.keep_within_bounds(width, height);
             boid.update_pos();
