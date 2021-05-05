@@ -1,5 +1,5 @@
 use super::constants::*;
-use palette::{Hsl, RgbHue, rgb::Rgb, IntoColor};
+use palette::{rgb::Rgb, Hsl, IntoColor, RgbHue};
 
 #[derive(Debug, Clone, Copy)]
 pub struct Boid {
@@ -18,6 +18,19 @@ impl Boid {
     }
     pub fn distance_to(&self, other: &Self) -> f32 {
         self.pos.distance(other.pos)
+    }
+    pub fn in_sight_range(&self, other: &Self) -> bool {
+        if self.distance_to(other) < VISUAL_RANGE {
+            let pi2 = 2. * std::f32::consts::PI;
+            let angle = self.vel.angle_between(other.pos - self.pos);
+            if angle >= - SIGHT_ANGLE / 2. && angle <= SIGHT_ANGLE / 2. {
+                return true;
+            }
+            else {
+                return false
+            }
+        }
+        false
     }
     pub fn sq_distance_to(&self, other: &Self) -> f32 {
         self.pos.distance_squared(other.pos)
@@ -39,19 +52,19 @@ impl Boid {
     }
     fn get_color(&self) -> Color {
         //Color::new(
-            //     1. - self.facing_angle() / (2. * std::f32::consts::PI),
-            //     self.facing_angle().cos(),
-            //     self.facing_angle() / (2. * std::f32::consts::PI),
-            //     1.,
-            // )
+        //     1. - self.facing_angle() / (2. * std::f32::consts::PI),
+        //     self.facing_angle().cos(),
+        //     self.facing_angle() / (2. * std::f32::consts::PI),
+        //     1.,
+        // )
         //Color::new(1. - self.min_dist / COLOR_DIVISOR, 0., self.min_dist / COLOR_DIVISOR, 1.)
         let hslcol = Hsl::new(
-            RgbHue::from_radians(self.facing_angle()), 
+            RgbHue::from_radians(self.facing_angle()),
             //(self.vel.length() - MIN_VELOC + 1.) / (MAX_VELOC - MIN_VELOC),
             self.min_dist / COLOR_DIVISOR,
-            0.5, 
+            0.5,
         );
-        let rgbcol : Rgb = hslcol.into();
+        let rgbcol: Rgb = hslcol.into();
         Color::new(rgbcol.red, rgbcol.green, rgbcol.blue, 1.)
     }
     pub fn get_drawparam(&self) -> DrawParam {
@@ -65,14 +78,12 @@ impl Boid {
     pub fn keep_within_bounds(&mut self, width: f32, height: f32) {
         if self.pos[0] < EDGE_TURN_MARGIN {
             self.vel = self.vel.lerp(Vector2::new(MIN_VELOC, 0.), TURN_FACTOR);
-        }
-        else if self.pos[0] > width - EDGE_TURN_MARGIN {
+        } else if self.pos[0] > width - EDGE_TURN_MARGIN {
             self.vel = self.vel.lerp(Vector2::new(-MIN_VELOC, 0.), TURN_FACTOR);
         }
         if self.pos[1] < EDGE_TURN_MARGIN {
             self.vel = self.vel.lerp(Vector2::new(0., MIN_VELOC), TURN_FACTOR);
-        }
-        else if self.pos[1] > height - EDGE_TURN_MARGIN {
+        } else if self.pos[1] > height - EDGE_TURN_MARGIN {
             self.vel = self.vel.lerp(Vector2::new(0., -MIN_VELOC), TURN_FACTOR);
         }
     }

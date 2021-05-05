@@ -25,7 +25,7 @@ fn fly_towards_center(boid: &mut Boid, closest: &Vec<Boid>) {
     let mut neighbor_count: f32 = 0.;
     let mut center = Vector2::ZERO;
     for neighbor in closest {
-        if boid.distance_to(neighbor) < VISUAL_RANGE {
+        if boid.in_sight_range(neighbor) {
             center += neighbor.pos;
             neighbor_count += 1.;
         }
@@ -38,7 +38,7 @@ fn fly_towards_center(boid: &mut Boid, closest: &Vec<Boid>) {
 fn avoid_other_boids(boid: &mut Boid, closest: &Vec<Boid>) {
     let mut delta = Vector2::new(0., 0.);
     for neighbor in closest {
-        if boid.distance_to(neighbor) < AVOID_RANGE {
+        if boid.distance_to(neighbor) < AVOID_RANGE  {
             delta += boid.pos - neighbor.pos;
         }
     }
@@ -48,7 +48,7 @@ fn match_velocities(boid: &mut Boid, closest: &Vec<Boid>) {
     let mut neighbor_count: f32 = 0.;
     let mut avg_vel = Vector2::ZERO;
     for neighbor in closest {
-        if boid.distance_to(neighbor) < VISUAL_RANGE {
+        if boid.in_sight_range(neighbor)  {
             avg_vel += neighbor.vel;
             neighbor_count += 1.;
         }
