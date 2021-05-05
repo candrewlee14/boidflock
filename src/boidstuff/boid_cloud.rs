@@ -38,7 +38,7 @@ fn fly_towards_center(boid: &mut Boid, closest: &Vec<Boid>) {
 fn avoid_other_boids(boid: &mut Boid, closest: &Vec<Boid>) {
     let mut delta = Vector2::new(0., 0.);
     for neighbor in closest {
-        if boid.distance_to(neighbor) < AVOID_RANGE  {
+        if boid.distance_to(neighbor) < AVOID_RANGE {
             delta += boid.pos - neighbor.pos;
         }
     }
@@ -48,7 +48,7 @@ fn match_velocities(boid: &mut Boid, closest: &Vec<Boid>) {
     let mut neighbor_count: f32 = 0.;
     let mut avg_vel = Vector2::ZERO;
     for neighbor in closest {
-        if boid.in_sight_range(neighbor)  {
+        if boid.in_sight_range(neighbor) {
             avg_vel += neighbor.vel;
             neighbor_count += 1.;
         }
@@ -91,17 +91,33 @@ impl BoidCloud {
     pub fn update(&mut self, width: f32, height: f32, rng: &mut ThreadRng) {
         let mut boids = self.boids.clone();
         for mut boid in self.boids.iter_mut() {
-            boids.sort_unstable_by(|a, b| {
-                (&boid.distance_to(a))
-                    .partial_cmp(&boid.sq_distance_to(b))
-                    .unwrap()
-            });
+            // boids.sort_unstable_by(|a, b| {
+            //     (&boid.distance_to(a))
+            //         .partial_cmp(&boid.sq_distance_to(b))
+            //         .unwrap()
+            // });
             if self.boid_count >= MAX_NEIGHBORS {
-                let closest = boids[1..MAX_NEIGHBORS].to_vec();
-                boid.min_dist = boid.distance_to(&closest[0]);
-                fly_towards_center(&mut boid, &closest);
-                avoid_other_boids(&mut boid, &closest);
-                match_velocities(&mut boid, &closest);
+                //let closest = boids[1..MAX_NEIGHBORS].to_vec();
+                let mut dist_and_closest = boids
+                    .iter()
+                    .filter_map(|other| {
+                        if let Some(dist) = boid.get_dist_if_in_sight(other) {
+                            return Some((dist, other.clone()));
+                        }
+                        None
+                    })
+                    .take(NEIGHBORS_TO_SEE)
+                    .collect::<Vec<(f32, Boid)>>();
+                if dist_and_closest.len() > MAX_NEIGHBORS {
+                    dist_and_closest.sort_unstable_by(|a, b| a.0.partial_cmp(&b.0).unwrap());
+                }
+                let closest : Vec<Boid> = dist_and_closest.iter().skip(1).take(MAX_NEIGHBORS).map(|tup| tup.1).collect();
+                if closest.len() > 0 {
+                    boid.min_dist = boid.distance_to(&closest[0]);
+                    fly_towards_center(&mut boid, &closest);
+                    avoid_other_boids(&mut boid, &closest);
+                    match_velocities(&mut boid, &closest);
+                }
             }
             random_vel_change(&mut boid, rng);
             boid.limit_speed();

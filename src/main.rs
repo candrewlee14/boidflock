@@ -22,12 +22,11 @@ fn main() -> GameResult {
     };
     let window_mode = conf::WindowMode::default()
         .fullscreen_type(conf::FullscreenType::Desktop)
-        //.maximized(true)
         .borderless(true);
     // Make a Context.
     let (mut ctx, mut event_loop) = ContextBuilder::new("my_game", "Cool Game Author")
         .window_setup(conf::WindowSetup::default().title("Boid Flocking Simulation"))
-        //.window_mode(conf::WindowMode::default().dimensions(1500.0, 1000.0))
+        // .window_mode(conf::WindowMode::default().dimensions(3800.0, 1080.0).resizable(true))
         .window_mode(window_mode)
         .add_resource_path(resource_dir)
         .build()?;
@@ -55,8 +54,10 @@ impl MainState {
         //let mut rng = Rand32::new(u64::from_ne_bytes(seed));
         let mut rng = rand::thread_rng();
         // Load/create resources such as images here.
-        let (width, height) = graphics::drawable_size(ctx);
-        let boid_cloud = BoidCloud::new(500, width, height, &mut rng)?;
+        //let (width, height) = graphics::drawable_size(ctx);
+        let (width, height) = graphics::size(ctx);
+
+        let boid_cloud = BoidCloud::new(2000, width, height, &mut rng)?;
         let assets = Assets::new(ctx)?;
         let img_batch = SpriteBatch::new(assets.boid_image.clone());
         Ok(Self {
@@ -71,12 +72,21 @@ impl MainState {
 }
 
 impl EventHandler for MainState {
-    fn update(&mut self, _ctx: &mut Context) -> GameResult<()> {
+    fn update(&mut self, ctx: &mut Context) -> GameResult<()> {
         // Update code here...
-        self.boid_cloud
-            .update(self.width, self.height, &mut self.rng);
+        // while (ggez::timer::check_update_time(ctx, 60)) {
+            self.boid_cloud.update(self.width, self.height, &mut self.rng);
+        // }
         Ok(())
     }
+
+    fn resize_event(&mut self, ctx: &mut Context, width: f32, height: f32){
+        self.width = width;
+        self.height = height;
+        self.boid_cloud.width = width;
+        self.boid_cloud.height = height;
+    }
+
     fn key_down_event(
         &mut self,
         ctx: &mut Context,

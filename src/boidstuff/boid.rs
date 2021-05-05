@@ -23,14 +23,24 @@ impl Boid {
         if self.distance_to(other) < VISUAL_RANGE {
             let pi2 = 2. * std::f32::consts::PI;
             let angle = self.vel.angle_between(other.pos - self.pos);
-            if angle >= - SIGHT_ANGLE / 2. && angle <= SIGHT_ANGLE / 2. {
+            if angle >= -SIGHT_ANGLE / 2. && angle <= SIGHT_ANGLE / 2. {
                 return true;
-            }
-            else {
-                return false
+            } else {
+                return false;
             }
         }
         false
+    }
+    pub fn get_dist_if_in_sight(&self, other: &Self) -> Option<f32> {
+        let dist = self.distance_to(other);
+        if dist < VISUAL_RANGE {
+            let pi2 = 2. * std::f32::consts::PI;
+            let angle = self.vel.angle_between(other.pos - self.pos);
+            if angle >= -SIGHT_ANGLE / 2. && angle <= SIGHT_ANGLE / 2. {
+                return Some(dist);
+            }
+        }
+        None
     }
     pub fn sq_distance_to(&self, other: &Self) -> f32 {
         self.pos.distance_squared(other.pos)
