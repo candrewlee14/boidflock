@@ -1,5 +1,5 @@
 pub use ggez::{
-    graphics::{self, spritebatch::SpriteBatch, DrawParam, Color},
+    graphics::{self, spritebatch::SpriteBatch, Color, DrawParam},
     Context, GameResult,
 };
 pub use glam::Vec2;
@@ -18,8 +18,8 @@ pub const VISUAL_RANGE: f32 = 50.;
 pub const MAX_VELOC: f32 = 5.;
 pub const MIN_VELOC: f32 = 2.;
 pub const MAX_NEIGHBORS: usize = 20;
-pub const EDGE_TURN_MARGIN: f32 = 20.;
-pub const TURN_FACTOR: f32 = 1.9;
+pub const EDGE_TURN_MARGIN: f32 = 50.;
+pub const TURN_FACTOR: f32 = 0.2;
 pub const IMG_SCALE: f32 = 0.2;
-pub const COLOR_DIVISOR: f32 = 500.;
+pub const COLOR_DIVISOR: f32 = 30.;
 pub const MAX_RAND_CHANGE: f32 = 0.2;

@@ -73,7 +73,8 @@ impl MainState {
 impl EventHandler for MainState {
     fn update(&mut self, _ctx: &mut Context) -> GameResult<()> {
         // Update code here...
-        self.boid_cloud.update(self.width, self.height, &mut self.rng);
+        self.boid_cloud
+            .update(self.width, self.height, &mut self.rng);
         Ok(())
     }
     fn key_down_event(

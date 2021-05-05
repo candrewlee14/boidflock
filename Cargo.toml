@@ -10,3 +10,4 @@ edition = "2018"
 ggez = {version="0.5", features=[]}
 glam = {version="*", features=["mint"]}
 rand = "*"
+palette = "*"

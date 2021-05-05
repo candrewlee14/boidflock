@@ -58,13 +58,10 @@ fn match_velocities(boid: &mut Boid, closest: &Vec<Boid>) {
         boid.vel += (avg_vel - boid.vel) * ALIGNMENT;
     }
 }
-fn random_vel_change(boid: &mut Boid, rng: &mut ThreadRng){
+fn random_vel_change(boid: &mut Boid, rng: &mut ThreadRng) {
     let angle = (rng.gen::<f32>() - 0.5) * MAX_RAND_CHANGE;
-    let rot_matr = glam::Mat2::from_cols_array(&[
-        angle.cos(), 
-        angle.sin(), 
-        -angle.sin(), 
-        angle.cos()]);
+    let rot_matr =
+        glam::Mat2::from_cols_array(&[angle.cos(), angle.sin(), -angle.sin(), angle.cos()]);
     boid.vel = rot_matr * boid.vel;
 }
 
