@@ -1,4 +1,14 @@
-use super::constants::*;
+pub use ggez::{
+    graphics::{self, spritebatch::SpriteBatch, Color, DrawParam},
+    Context, GameResult,
+};
+pub use glam::Vec2;
+pub use rand::prelude::*;
+pub use rand::Rng;
+pub use std::collections::HashSet;
+
+pub type Point2 = Vec2;
+pub type Vector2 = Vec2;
 use crate::boidstuff::boid::Boid;
 use crate::cliargs::BoidSimOpt;
 
@@ -47,15 +57,15 @@ impl BoidCloud {
     }
 
     pub fn update(&mut self, width: f32, height: f32, rng: &mut ThreadRng) {
-        let boids = self.boids.clone();
         let opt = self.opt.clone();
+        let boids = self.boids.clone();
         for mut boid in self.boids.iter_mut() {
             if self.boid_count >= self.opt.MAX_NEIGHBORS {
                 let mut dist_and_closest = boids
                     .iter()
                     .filter_map(|other| {
                         if let Some(dist) = boid.get_dist_if_in_sight(other, &opt) {
-                            return Some((dist, other.clone()));
+                            return Some((dist, *other));
                         }
                         None
                     })
@@ -69,7 +79,7 @@ impl BoidCloud {
                     .take(self.opt.MAX_NEIGHBORS)
                     .map(|tup| tup.1)
                     .collect();
-                if closest.len() > 0 {
+                if !closest.is_empty() {
                     boid.min_dist = boid.distance_to(&closest[0]);
                     boid.fly_towards_center(&closest, &self.opt);
                     boid.avoid_other_boids(&closest, &self.opt);

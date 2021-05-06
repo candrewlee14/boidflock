@@ -1,6 +1,16 @@
-use super::constants::*;
+pub use ggez::{
+    graphics::{self, spritebatch::SpriteBatch, Color, DrawParam},
+    Context, GameResult,
+};
+pub use glam::Vec2;
+pub use rand::prelude::*;
+pub use rand::Rng;
+pub use std::collections::HashSet;
+
+pub type Point2 = Vec2;
+pub type Vector2 = Vec2;
 use crate::cliargs::BoidSimOpt;
-use palette::{rgb::Rgb, Hsl, IntoColor, RgbHue};
+use palette::{rgb::Rgb, Hsl, RgbHue};
 
 #[derive(Debug, Clone, Copy)]
 pub struct Boid {
@@ -65,20 +75,16 @@ impl Boid {
     }
     pub fn in_sight_range(&self, other: &Self, opt: &BoidSimOpt) -> bool {
         if self.distance_to(other) < opt.VISUAL_RANGE {
-            let pi2 = 2. * std::f32::consts::PI;
+            let _pi2 = 2. * std::f32::consts::PI;
             let angle = self.vel.angle_between(other.pos - self.pos);
-            if angle >= -opt.SIGHT_ANGLE / 2. && angle <= opt.SIGHT_ANGLE / 2. {
-                return true;
-            } else {
-                return false;
-            }
+            return angle >= -opt.SIGHT_ANGLE / 2. && angle <= opt.SIGHT_ANGLE / 2.;
         }
         false
     }
     pub fn get_dist_if_in_sight(&self, other: &Self, opt: &BoidSimOpt) -> Option<f32> {
         let dist = self.distance_to(other);
         if dist < opt.VISUAL_RANGE {
-            let pi2 = 2. * std::f32::consts::PI;
+            let _pi2 = 2. * std::f32::consts::PI;
             let angle = self.vel.angle_between(other.pos - self.pos);
             if angle >= -opt.SIGHT_ANGLE / 2. && angle <= opt.SIGHT_ANGLE / 2. {
                 return Some(dist);

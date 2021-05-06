@@ -1,22 +1,21 @@
 use ggez::conf;
 use ggez::event::{self, EventHandler};
 use ggez::graphics::{self, spritebatch::SpriteBatch, Color};
-use ggez::{filesystem, Context, ContextBuilder, GameResult};
+use ggez::{Context, ContextBuilder, GameResult};
 use glam::Vec2;
-use rand::distributions::Standard;
+
 use rand::prelude::*;
 
+mod assets;
 mod boidstuff;
 mod cliargs;
-use boidstuff::{boid::Boid, boid_cloud::BoidCloud};
-mod assets;
 use assets::Assets;
+use boidstuff::boid_cloud::BoidCloud;
 use cliargs::BoidSimOpt;
 use structopt::StructOpt;
 
 fn main() -> GameResult {
     let opt = BoidSimOpt::from_args();
-    println!("{:?}", opt);
     let resource_dir = if let Ok(manifest_dir) = std::env::var("CARGO_MANIFEST_DIR") {
         let mut path = std::path::PathBuf::from(manifest_dir);
         path.push("resources");
@@ -25,7 +24,11 @@ fn main() -> GameResult {
         std::path::PathBuf::from("./resources")
     };
     let (mut ctx, mut event_loop) = ContextBuilder::new("my_game", "Cool Game Author")
-        .window_setup(conf::WindowSetup::default().title("Boid Flocking Simulation"))
+        .window_setup(
+            conf::WindowSetup::default()
+                .title("Boid Flocking Simulation")
+                .icon("/player.png"),
+        )
         .window_mode(
             conf::WindowMode::default()
                 .dimensions(1920.0, 1080.0)
@@ -68,15 +71,15 @@ impl MainState {
 }
 
 impl EventHandler for MainState {
-    fn update(&mut self, ctx: &mut Context) -> GameResult<()> {
-        let boids = self.boid_cloud.boids.clone();
-        let optclone = self.boid_cloud.opt.clone();
+    fn update(&mut self, _ctx: &mut Context) -> GameResult<()> {
+        let _boids = self.boid_cloud.boids.clone();
+        let _optclone = self.boid_cloud.opt.clone();
         self.boid_cloud
             .update(self.width, self.height, &mut self.rng);
         Ok(())
     }
 
-    fn resize_event(&mut self, ctx: &mut Context, width: f32, height: f32) {
+    fn resize_event(&mut self, _ctx: &mut Context, width: f32, height: f32) {
         self.width = width;
         self.height = height;
         self.boid_cloud.width = width;

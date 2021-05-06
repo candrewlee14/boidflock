@@ -1,5 +1,5 @@
 use ggez::{
-    graphics::{self, Color},
+    graphics::{self},
     Context, GameResult,
 };
 
