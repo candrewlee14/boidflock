@@ -3,16 +3,20 @@ use ggez::event::{self, EventHandler};
 use ggez::graphics::{self, spritebatch::SpriteBatch, Color};
 use ggez::{filesystem, Context, ContextBuilder, GameResult};
 use glam::Vec2;
-mod boidstuff;
-use boidstuff::{boid::Boid, boid_cloud::BoidCloud};
-mod assets;
-use assets::Assets;
 use rand::distributions::Standard;
 use rand::prelude::*;
 
+mod boidstuff;
+mod cliargs;
+use boidstuff::{boid::Boid, boid_cloud::BoidCloud};
+mod assets;
+use assets::Assets;
+use cliargs::BoidSimOpt;
+use structopt::StructOpt;
+
 fn main() -> GameResult {
-    // We add the CARGO_MANIFEST_DIR/resources to the resource paths
-    // so that ggez will look in our cargo project directory for files.
+    let opt = BoidSimOpt::from_args();
+    println!("{:?}", opt);
     let resource_dir = if let Ok(manifest_dir) = std::env::var("CARGO_MANIFEST_DIR") {
         let mut path = std::path::PathBuf::from(manifest_dir);
         path.push("resources");
@@ -20,20 +24,17 @@ fn main() -> GameResult {
     } else {
         std::path::PathBuf::from("./resources")
     };
-    let window_mode = conf::WindowMode::default()
-        .fullscreen_type(conf::FullscreenType::Desktop)
-        .borderless(true);
-    // Make a Context.
     let (mut ctx, mut event_loop) = ContextBuilder::new("my_game", "Cool Game Author")
         .window_setup(conf::WindowSetup::default().title("Boid Flocking Simulation"))
-        // .window_mode(conf::WindowMode::default().dimensions(3800.0, 1080.0).resizable(true))
-        .window_mode(window_mode)
+        .window_mode(
+            conf::WindowMode::default()
+                .dimensions(1920.0, 1080.0)
+                .resizable(true)
+                .maximized(true),
+        )
         .add_resource_path(resource_dir)
         .build()?;
-    // Create an instance of your event handler.
-    // Usually, you should provide it with the Context object to
-    // use when setting your game up.
-    let mut main_state = MainState::new(&mut ctx)?;
+    let mut main_state = MainState::new(&mut ctx, opt)?;
 
     // Run!
     event::run(&mut ctx, &mut event_loop, &mut main_state)
@@ -44,20 +45,15 @@ struct MainState {
     height: f32,
     boid_cloud: BoidCloud,
     assets: Assets,
-    //rng: Rand32,
     rng: ThreadRng,
     img_batch: SpriteBatch,
 }
 
 impl MainState {
-    pub fn new(ctx: &mut Context) -> GameResult<Self> {
-        //let mut rng = Rand32::new(u64::from_ne_bytes(seed));
+    pub fn new(ctx: &mut Context, opt: BoidSimOpt) -> GameResult<Self> {
         let mut rng = rand::thread_rng();
-        // Load/create resources such as images here.
-        //let (width, height) = graphics::drawable_size(ctx);
-        let (width, height) = graphics::size(ctx);
-
-        let boid_cloud = BoidCloud::new(2000, width, height, &mut rng)?;
+        let (width, height) = graphics::drawable_size(ctx);
+        let boid_cloud = BoidCloud::new(opt.BOID_COUNT, width, height, &mut rng, opt)?;
         let assets = Assets::new(ctx)?;
         let img_batch = SpriteBatch::new(assets.boid_image.clone());
         Ok(Self {
@@ -73,14 +69,14 @@ impl MainState {
 
 impl EventHandler for MainState {
     fn update(&mut self, ctx: &mut Context) -> GameResult<()> {
-        // Update code here...
-        // while (ggez::timer::check_update_time(ctx, 60)) {
-            self.boid_cloud.update(self.width, self.height, &mut self.rng);
-        // }
+        let boids = self.boid_cloud.boids.clone();
+        let optclone = self.boid_cloud.opt.clone();
+        self.boid_cloud
+            .update(self.width, self.height, &mut self.rng);
         Ok(())
     }
 
-    fn resize_event(&mut self, ctx: &mut Context, width: f32, height: f32){
+    fn resize_event(&mut self, ctx: &mut Context, width: f32, height: f32) {
         self.width = width;
         self.height = height;
         self.boid_cloud.width = width;
@@ -96,20 +92,11 @@ impl EventHandler for MainState {
     ) {
         match keycode {
             event::KeyCode::Escape | event::KeyCode::Q => event::quit(ctx),
-            _ => (), // Do nothing
+            _ => (),
         }
     }
-    // #[cfg(debug_assertions)]
-    // fn draw(&mut self, ctx: &mut Context) -> GameResult<()> {
-    //     graphics::clear(ctx, Color::new(0.,0.,0.,1.));
-    //     // Draw code here...
-    //     self.boid_cloud.draw(&mut self.assets, ctx);
-    //     graphics::present(ctx)
-    // }
-    // #[cfg(not(debug_assertions))]
     fn draw(&mut self, ctx: &mut Context) -> GameResult<()> {
         graphics::clear(ctx, Color::new(0., 0., 0., 1.));
-        // Draw code here...
         self.img_batch.clear();
         self.boid_cloud
             .add_boids_to_spritebatch(&mut self.img_batch);

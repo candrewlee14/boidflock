@@ -1,5 +1,6 @@
 use super::constants::*;
 use crate::boidstuff::boid::Boid;
+use crate::cliargs::BoidSimOpt;
 
 fn rand_vec2(rng: &mut ThreadRng, max_1: f32, max_2: f32, centered: bool) -> Vec2 {
     let mut x1 = rng.gen::<f32>();
@@ -11,7 +12,6 @@ fn rand_vec2(rng: &mut ThreadRng, max_1: f32, max_2: f32, centered: bool) -> Vec
     let final1 = x1 * max_1;
     let final2 = x2 * max_2;
     Vec2::new(final1, final2)
-    // Vec2::new(x1, x2)
 }
 
 pub struct BoidCloud {
@@ -19,64 +19,21 @@ pub struct BoidCloud {
     pub height: f32,
     pub boids: Vec<Boid>,
     pub boid_count: usize,
+    pub opt: BoidSimOpt,
 }
-
-fn fly_towards_center(boid: &mut Boid, closest: &Vec<Boid>) {
-    let mut neighbor_count: f32 = 0.;
-    let mut center = Vector2::ZERO;
-    for neighbor in closest {
-        if boid.in_sight_range(neighbor) {
-            center += neighbor.pos;
-            neighbor_count += 1.;
-        }
-    }
-    if neighbor_count > 0. {
-        center /= neighbor_count;
-        boid.vel += (center - boid.pos) * COHERENCE
-    };
-}
-fn avoid_other_boids(boid: &mut Boid, closest: &Vec<Boid>) {
-    let mut delta = Vector2::new(0., 0.);
-    for neighbor in closest {
-        if boid.distance_to(neighbor) < AVOID_RANGE {
-            delta += boid.pos - neighbor.pos;
-        }
-    }
-    boid.vel += delta * SEPARATION;
-}
-fn match_velocities(boid: &mut Boid, closest: &Vec<Boid>) {
-    let mut neighbor_count: f32 = 0.;
-    let mut avg_vel = Vector2::ZERO;
-    for neighbor in closest {
-        if boid.in_sight_range(neighbor) {
-            avg_vel += neighbor.vel;
-            neighbor_count += 1.;
-        }
-    }
-    if neighbor_count > 0. {
-        avg_vel /= neighbor_count;
-        boid.vel += (avg_vel - boid.vel) * ALIGNMENT;
-    }
-}
-fn random_vel_change(boid: &mut Boid, rng: &mut ThreadRng) {
-    let angle = (rng.gen::<f32>() - 0.5) * MAX_RAND_CHANGE;
-    let rot_matr =
-        glam::Mat2::from_cols_array(&[angle.cos(), angle.sin(), -angle.sin(), angle.cos()]);
-    boid.vel = rot_matr * boid.vel;
-}
-
 impl BoidCloud {
     pub fn new(
         boid_count: usize,
         width: f32,
         height: f32,
         rng: &mut ThreadRng,
+        opt: BoidSimOpt,
     ) -> GameResult<Self> {
         let boid_vec: Vec<Boid> = (0..boid_count)
             .map(|_| {
                 Boid::new(
                     rand_vec2(rng, width, height, false),
-                    rand_vec2(rng, MAX_VELOC / 2., MAX_VELOC / 2., true),
+                    rand_vec2(rng, opt.MAX_VELOC / 2., opt.MAX_VELOC / 2., true),
                 )
             })
             .collect::<Vec<Boid>>();
@@ -85,50 +42,50 @@ impl BoidCloud {
             height,
             boids: boid_vec,
             boid_count,
+            opt,
         })
     }
 
     pub fn update(&mut self, width: f32, height: f32, rng: &mut ThreadRng) {
-        let mut boids = self.boids.clone();
+        let boids = self.boids.clone();
+        let opt = self.opt.clone();
         for mut boid in self.boids.iter_mut() {
-            // boids.sort_unstable_by(|a, b| {
-            //     (&boid.distance_to(a))
-            //         .partial_cmp(&boid.sq_distance_to(b))
-            //         .unwrap()
-            // });
-            if self.boid_count >= MAX_NEIGHBORS {
-                //let closest = boids[1..MAX_NEIGHBORS].to_vec();
+            if self.boid_count >= self.opt.MAX_NEIGHBORS {
                 let mut dist_and_closest = boids
                     .iter()
                     .filter_map(|other| {
-                        if let Some(dist) = boid.get_dist_if_in_sight(other) {
+                        if let Some(dist) = boid.get_dist_if_in_sight(other, &opt) {
                             return Some((dist, other.clone()));
                         }
                         None
                     })
-                    .take(NEIGHBORS_TO_SEE)
+                    .take(self.opt.NEIGHBORS_TO_SEE)
                     .collect::<Vec<(f32, Boid)>>();
-                if dist_and_closest.len() > MAX_NEIGHBORS {
+                if dist_and_closest.len() > self.opt.MAX_NEIGHBORS {
                     dist_and_closest.sort_unstable_by(|a, b| a.0.partial_cmp(&b.0).unwrap());
                 }
-                let closest : Vec<Boid> = dist_and_closest.iter().skip(1).take(MAX_NEIGHBORS).map(|tup| tup.1).collect();
+                let closest: Vec<Boid> = dist_and_closest
+                    .iter()
+                    .take(self.opt.MAX_NEIGHBORS)
+                    .map(|tup| tup.1)
+                    .collect();
                 if closest.len() > 0 {
                     boid.min_dist = boid.distance_to(&closest[0]);
-                    fly_towards_center(&mut boid, &closest);
-                    avoid_other_boids(&mut boid, &closest);
-                    match_velocities(&mut boid, &closest);
+                    boid.fly_towards_center(&closest, &self.opt);
+                    boid.avoid_other_boids(&closest, &self.opt);
+                    boid.match_velocities(&closest, &self.opt);
                 }
             }
-            random_vel_change(&mut boid, rng);
-            boid.limit_speed();
-            boid.keep_within_bounds(width, height);
+            boid.random_vel_change(rng, &self.opt);
+            boid.limit_speed(&self.opt);
+            boid.keep_within_bounds(width, height, &self.opt);
             boid.update_pos();
         }
     }
 
     pub fn add_boids_to_spritebatch(&self, img_batch: &mut SpriteBatch) {
         for boid in self.boids.iter() {
-            img_batch.add(boid.get_drawparam());
+            img_batch.add(boid.get_drawparam(&self.opt));
         }
     }
 }
