@@ -4,15 +4,15 @@ pub use ggez::{
 };
 pub use glam::Vec2;
 pub use rand::prelude::*;
-pub use rand::Rng;
+use rand_xoshiro::Xoroshiro128Plus;
 pub use std::collections::HashSet;
 
 pub type Point2 = Vec2;
 pub type Vector2 = Vec2;
-use crate::boidstuff::boid::Boid;
+use crate::boid::Boid;
 use crate::cliargs::BoidSimOpt;
 
-fn rand_vec2(rng: &mut ThreadRng, max_1: f32, max_2: f32, centered: bool) -> Vec2 {
+fn rand_vec2(rng: &mut Xoroshiro128Plus, max_1: f32, max_2: f32, centered: bool) -> Vec2 {
     let mut x1 = rng.gen::<f32>();
     let mut x2 = rng.gen::<f32>();
     if centered {
@@ -36,9 +36,9 @@ impl BoidCloud {
         boid_count: usize,
         width: f32,
         height: f32,
-        rng: &mut ThreadRng,
+        rng: &mut Xoroshiro128Plus,
         opt: BoidSimOpt,
-    ) -> GameResult<Self> {
+    ) -> Self {
         let boid_vec: Vec<Boid> = (0..boid_count)
             .map(|_| {
                 Boid::new(
@@ -47,16 +47,16 @@ impl BoidCloud {
                 )
             })
             .collect::<Vec<Boid>>();
-        Ok(Self {
+        Self {
             width,
             height,
             boids: boid_vec,
             boid_count,
             opt,
-        })
+        }
     }
 
-    pub fn update(&mut self, width: f32, height: f32, rng: &mut ThreadRng) {
+    pub fn update(&mut self, rng: &mut Xoroshiro128Plus) {
         let opt = self.opt.clone();
         let boids = self.boids.clone();
         for mut boid in self.boids.iter_mut() {
@@ -88,7 +88,7 @@ impl BoidCloud {
             }
             boid.random_vel_change(rng, &self.opt);
             boid.limit_speed(&self.opt);
-            boid.keep_within_bounds(width, height, &self.opt);
+            boid.keep_within_bounds(self.width, self.height, &self.opt);
             boid.update_pos();
         }
     }

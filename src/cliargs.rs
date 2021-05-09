@@ -1,6 +1,6 @@
 use structopt::StructOpt;
 
-#[derive(Debug, StructOpt, Clone)]
+#[derive(Debug, StructOpt, Clone, Default)]
 #[structopt(
     name = "Boid Flocking Simulation",
     about = "A flocking simulation built in Rust with ggez"
@@ -20,7 +20,7 @@ pub struct BoidSimOpt {
     pub COHERENCE: f32,
 
     /// Coefficient for boid avoidance within AVOID_RANGE : [0, 1]
-    #[structopt(long, default_value = "0.15")]
+    #[structopt(long, default_value = "0.25")]
     pub SEPARATION: f32,
 
     /// Coefficient for boid alignment of velocity within SIGHT_RANGE : [0, 1]
@@ -28,7 +28,7 @@ pub struct BoidSimOpt {
     pub ALIGNMENT: f32,
 
     /// Pixel distance for a boid to avoid others in line of sight : [0, INF)
-    #[structopt(long, default_value = "25.")]
+    #[structopt(long, default_value = "21.")]
     pub AVOID_RANGE: f32,
 
     /// Pixel sight distance for each boid : [0, INF)
@@ -36,7 +36,7 @@ pub struct BoidSimOpt {
     pub VISUAL_RANGE: f32,
 
     /// Sight pie-slice angle for each boid in radians : [0, 2*PI]
-    #[structopt(long, default_value = "2.51327")]
+    #[structopt(long, default_value = "2.3")]
     pub SIGHT_ANGLE: f32,
 
     /// Minimum boid velocity in pixels : [0, MAX_VELOC]
@@ -67,6 +67,6 @@ pub struct BoidSimOpt {
     pub EDGE_TURN_FACTOR: f32,
 
     /// Scale for boid image : [0, INF)
-    #[structopt(long, default_value = "0.35")]
+    #[structopt(long, default_value = "0.32")]
     pub IMG_SCALE: f32,
 }

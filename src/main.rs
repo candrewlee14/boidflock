@@ -3,16 +3,19 @@ use ggez::event::{self, EventHandler};
 use ggez::graphics::{self, spritebatch::SpriteBatch, Color};
 use ggez::{Context, ContextBuilder, GameResult};
 use glam::Vec2;
+use structopt::StructOpt;
 
 use rand::prelude::*;
+use rand_xoshiro::Xoroshiro128Plus;
 
 mod assets;
-mod boidstuff;
+mod boid;
+mod boid_cloud;
 mod cliargs;
+
 use assets::Assets;
-use boidstuff::boid_cloud::BoidCloud;
+use boid_cloud::BoidCloud;
 use cliargs::BoidSimOpt;
-use structopt::StructOpt;
 
 fn main() -> GameResult {
     let opt = BoidSimOpt::from_args();
@@ -48,15 +51,15 @@ struct MainState {
     height: f32,
     boid_cloud: BoidCloud,
     assets: Assets,
-    rng: ThreadRng,
+    rng: Xoroshiro128Plus,
     img_batch: SpriteBatch,
 }
 
 impl MainState {
     pub fn new(ctx: &mut Context, opt: BoidSimOpt) -> GameResult<Self> {
-        let mut rng = rand::thread_rng();
+        let mut rng = Xoroshiro128Plus::from_entropy();
         let (width, height) = graphics::drawable_size(ctx);
-        let boid_cloud = BoidCloud::new(opt.BOID_COUNT, width, height, &mut rng, opt)?;
+        let boid_cloud = BoidCloud::new(opt.BOID_COUNT, width, height, &mut rng, opt);
         let assets = Assets::new(ctx)?;
         let img_batch = SpriteBatch::new(assets.boid_image.clone());
         Ok(Self {
@@ -74,8 +77,7 @@ impl EventHandler for MainState {
     fn update(&mut self, _ctx: &mut Context) -> GameResult<()> {
         let _boids = self.boid_cloud.boids.clone();
         let _optclone = self.boid_cloud.opt.clone();
-        self.boid_cloud
-            .update(self.width, self.height, &mut self.rng);
+        self.boid_cloud.update(&mut self.rng);
         Ok(())
     }
 

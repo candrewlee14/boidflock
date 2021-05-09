@@ -4,12 +4,12 @@ pub use ggez::{
 };
 pub use glam::Vec2;
 pub use rand::prelude::*;
-pub use rand::Rng;
+pub use rand_xoshiro::Xoroshiro128Plus;
 pub use std::collections::HashSet;
 
 pub type Point2 = Vec2;
 pub type Vector2 = Vec2;
-use crate::cliargs::BoidSimOpt;
+use super::cliargs::BoidSimOpt;
 use palette::{rgb::Rgb, Hsl, RgbHue};
 
 #[derive(Debug, Clone, Copy)]
@@ -64,7 +64,7 @@ impl Boid {
             self.vel += (avg_vel - self.vel) * opt.ALIGNMENT;
         }
     }
-    pub fn random_vel_change(&mut self, rng: &mut ThreadRng, opt: &BoidSimOpt) {
+    pub fn random_vel_change(&mut self, rng: &mut Xoroshiro128Plus, opt: &BoidSimOpt) {
         let angle = (rng.gen::<f32>() - 0.5) * opt.MAX_RAND_ROTATE;
         let rot_matr =
             glam::Mat2::from_cols_array(&[angle.cos(), angle.sin(), -angle.sin(), angle.cos()]);
@@ -113,7 +113,7 @@ impl Boid {
     fn get_color(&self) -> Color {
         let hslcol = Hsl::new(
             RgbHue::from_radians(self.facing_angle()),
-            self.min_dist / 30.,
+            1. - self.min_dist / 80.,
             0.5,
         );
         let rgbcol: Rgb = hslcol.into();

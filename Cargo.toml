@@ -12,3 +12,11 @@ glam = {version="*", features=["mint"]}
 rand = "*"
 palette = "*"
 structopt = {version="0.3", features=["color", "suggestions"]}
+rand_xoshiro = "*"
+
+[dev-dependencies]
+criterion = {version= "0.3", features=["html_reports"]}
+
+[[bench]]
+name = "bench_boids"
+harness = false
