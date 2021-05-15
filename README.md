@@ -1,8 +1,10 @@
-# Boids
+# Boidflock
 
 This is a Rust implementation of a boid flocking simulation using the ggez graphics crate.
 
 The CLI for this program is built using the structopt crate.
+
+<img src="https://repository-images.githubusercontent.com/364743636/4c202000-b535-11eb-8d51-20fd3b01c88f" width="700px">
 
 Running `cargo run --release -- --help` yields a screen with the options below:
     
