@@ -44,7 +44,7 @@ Running `cargo run --release -- --help` yields a screen with the options below:
                 Maximum number of boid neighbors within sight range to consider for calculations : [0, BOID_COUNT] [default:
                 10]
             --neighbors-to-see <neighbors-to-see>
-                Number of boids in sight range to consider and sort, of which the nearest MAX_NEIGHBORS boids are taken :
+                Number of boids in sight range to consider and sort, of which the nearest CUR_CELL_NEIGHBORS boids are taken :
                 [0, BOID_COUNT] [default: 15]
             --edge-turn-margin <edge-turn-margin>
                 Pixel distance from screen edge for boids to turn away from to stay on screen : [0, INF) [default: 20.]

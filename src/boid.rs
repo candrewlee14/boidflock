@@ -49,7 +49,7 @@ impl Boid {
     pub fn avoid_other_boids(&mut self, closest: &Vec<Boid>, opt: &BoidSimOpt) {
         let mut delta = Vector2::new(0., 0.);
         for neighbor in closest {
-            if self.distance_to(neighbor) < opt.AVOID_RANGE {
+            if self.sq_distance_to(neighbor) < opt.AVOID_RANGE.powi(2) {
                 delta += self.pos - neighbor.pos;
             }
         }
@@ -79,7 +79,7 @@ impl Boid {
         self.pos.distance(other.pos)
     }
     pub fn in_sight_range(&self, other: &Self, opt: &BoidSimOpt) -> bool {
-        if self.distance_to(other) < opt.VISUAL_RANGE {
+        if self.sq_distance_to(other) < opt.VISUAL_RANGE.powi(2) {
             let _pi2 = 2. * std::f32::consts::PI;
             let angle = self.vel.angle_between(other.pos - self.pos);
             return angle >= -opt.SIGHT_ANGLE / 2. && angle <= opt.SIGHT_ANGLE / 2.;
@@ -132,20 +132,21 @@ impl Boid {
             .color(self.get_color())
     }
     pub fn keep_within_bounds(&mut self, width: f32, height: f32, opt: &BoidSimOpt) {
-        if self.pos[0] < opt.EDGE_TURN_MARGIN {
+        let pixel_margin = opt.EDGE_TURN_MARGIN / opt.ZOOM_SCALE;
+        if self.pos[0] < pixel_margin {
             self.vel = self
                 .vel
                 .lerp(Vector2::new(opt.MIN_VELOC, 0.), opt.EDGE_TURN_FACTOR);
-        } else if self.pos[0] > width - opt.EDGE_TURN_MARGIN {
+        } else if self.pos[0] > width - pixel_margin {
             self.vel = self
                 .vel
                 .lerp(Vector2::new(-opt.MIN_VELOC, 0.), opt.EDGE_TURN_FACTOR);
         }
-        if self.pos[1] < opt.EDGE_TURN_MARGIN {
+        if self.pos[1] < pixel_margin {
             self.vel = self
                 .vel
                 .lerp(Vector2::new(0., opt.MIN_VELOC), opt.EDGE_TURN_FACTOR);
-        } else if self.pos[1] > height - opt.EDGE_TURN_MARGIN {
+        } else if self.pos[1] > height - pixel_margin {
             self.vel = self
                 .vel
                 .lerp(Vector2::new(0., -opt.MIN_VELOC), opt.EDGE_TURN_FACTOR);

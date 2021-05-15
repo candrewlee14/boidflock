@@ -39,7 +39,7 @@ impl BoidCloud {
         opt: BoidSimOpt,
     ) -> Self {
         let mut boid_cells: Vec<Vec<Boid>> = vec![
-            Vec::<Boid>::with_capacity(opt.MAX_NEIGHBORS);
+            Vec::<Boid>::with_capacity(opt.CUR_CELL_NEIGHBORS);
             ((width / opt.VISUAL_RANGE).ceil() * (height / opt.VISUAL_RANGE).ceil())
                 as usize
         ];
@@ -70,9 +70,9 @@ impl BoidCloud {
                     self.width,
                     self.height,
                     &self.opt,
-                )
-                .clamp(0, self.boid_cells.len() - 1);
-                let close_boids = self.boid_cells[cell_num]
+                );
+                let mut close_boids: Vec<Boid> = Vec::new();
+                let mut close_boids_chain = self.boid_cells[cell_num]
                     .iter()
                     .filter(|other| {
                         let _pi2 = 2. * std::f32::consts::PI;
@@ -80,10 +80,74 @@ impl BoidCloud {
                         return angle >= -self.opt.SIGHT_ANGLE / 2.
                             && angle <= self.opt.SIGHT_ANGLE / 2.;
                     })
-                    .chain(self.boid_cells[forward_cell].iter())
-                    .take(self.opt.MAX_NEIGHBORS)
-                    .cloned()
-                    .collect();
+                    .take(self.opt.CUR_CELL_NEIGHBORS)
+                    .chain(
+                        self.boid_cells[forward_cell]
+                            .iter()
+                            .filter(|other| {
+                                let _pi2 = 2. * std::f32::consts::PI;
+                                let angle = boid.vel.angle_between(other.pos - boid.pos);
+                                return angle >= -self.opt.SIGHT_ANGLE / 2.
+                                    && angle <= self.opt.SIGHT_ANGLE / 2.;
+                            })
+                            .take(self.opt.FORWARD_CELL_NEIGHBORS),
+                    );
+                close_boids.extend(close_boids_chain);
+                let angle = self.opt.SIGHT_ANGLE / 2.;
+                let rot_matr = glam::Mat2::from_cols_array(&[
+                    angle.cos(),
+                    angle.sin(),
+                    -angle.sin(),
+                    angle.cos(),
+                ]);
+                let side_cell = get_cell_for_point(
+                    boid.pos + rot_matr * boid.vel.normalize() * self.opt.VISUAL_RANGE,
+                    self.width,
+                    self.height,
+                    &self.opt,
+                )
+                .clamp(0, self.boid_cells.len() - 1);
+                if side_cell != forward_cell && side_cell != i {
+                    let side_cell_filtered = self.boid_cells[side_cell]
+                        .iter()
+                        .filter(|other| {
+                            let _pi2 = 2. * std::f32::consts::PI;
+                            let angle = boid.vel.angle_between(other.pos - boid.pos);
+                            return angle >= -self.opt.SIGHT_ANGLE / 2.
+                                && angle <= self.opt.SIGHT_ANGLE / 2.;
+                        })
+                        .take(self.opt.FORWARD_CELL_NEIGHBORS);
+                    close_boids.extend(side_cell_filtered);
+                }
+                let left_angle = -self.opt.SIGHT_ANGLE / 2.;
+                let left_rot_matr = glam::Mat2::from_cols_array(&[
+                    angle.cos(),
+                    angle.sin(),
+                    -angle.sin(),
+                    angle.cos(),
+                ]);
+                let left_side_cell = get_cell_for_point(
+                    boid.pos + rot_matr * boid.vel.normalize() * self.opt.VISUAL_RANGE,
+                    self.width,
+                    self.height,
+                    &self.opt,
+                )
+                .clamp(0, self.boid_cells.len() - 1);
+                if left_side_cell != side_cell
+                    && left_side_cell != forward_cell
+                    && left_side_cell != i
+                {
+                    let left_side_cell_filtered = self.boid_cells[left_side_cell]
+                        .iter()
+                        .filter(|other| {
+                            let _pi2 = 2. * std::f32::consts::PI;
+                            let angle = boid.vel.angle_between(other.pos - boid.pos);
+                            return angle >= -self.opt.SIGHT_ANGLE / 2.
+                                && angle <= self.opt.SIGHT_ANGLE / 2.;
+                        })
+                        .take(self.opt.FORWARD_CELL_NEIGHBORS);
+                    close_boids.extend(left_side_cell_filtered);
+                }
                 boid.fly_towards_center(&close_boids, &self.opt);
                 boid.avoid_other_boids(&close_boids, &self.opt);
                 boid.match_velocities(&close_boids, &self.opt);

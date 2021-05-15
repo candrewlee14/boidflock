@@ -31,7 +31,7 @@ pub struct BoidSimOpt {
     pub AVOID_RANGE: f32,
 
     /// Pixel sight distance for each boid : [0, INF)
-    #[structopt(long, default_value = "60.")]
+    #[structopt(long, default_value = "80.")]
     pub VISUAL_RANGE: f32,
 
     /// Sight pie-slice angle for each boid in radians : [0, 2*PI]
@@ -50,19 +50,18 @@ pub struct BoidSimOpt {
     #[structopt(long, default_value = "5.")]
     pub MAX_VELOC: f32,
 
-    /// Maximum number of boid neighbors within sight range
+    /// Maximum number of boid neighbors within current sight range cell
     /// to consider for calculations : [0, BOID_COUNT]
-    #[structopt(long, default_value = "10")]
-    pub MAX_NEIGHBORS: usize,
+    #[structopt(long, default_value = "30")]
+    pub CUR_CELL_NEIGHBORS: usize,
 
-    /// Number of boids in sight range to consider and sort,
-    /// of which the nearest MAX_NEIGHBORS boids are taken : [0, BOID_COUNT]
-    #[structopt(long, default_value = "15")]
-    pub NEIGHBORS_TO_SEE: usize,
+    /// Number of boids in sight range in sight range cell ahead to consider : [0, BOID_COUNT]
+    #[structopt(long, default_value = "10")]
+    pub FORWARD_CELL_NEIGHBORS: usize,
 
     /// Pixel distance from screen edge for boids to turn away from
     /// to stay on screen : [0, INF)
-    #[structopt(long, default_value = "20.")]
+    #[structopt(long, default_value = "25.")]
     pub EDGE_TURN_MARGIN: f32,
 
     /// Coefficient to turn away from screen edges : [0, 1]
@@ -74,6 +73,6 @@ pub struct BoidSimOpt {
     pub IMG_SCALE: f32,
 
     /// Scale to zoom. Above 1 zooms in, below 1 down to 0 zooms out : [0, INF)
-    #[structopt(long, default_value = "1.")]
+    #[structopt(long, default_value = "0.8")]
     pub ZOOM_SCALE: f32,
 }
