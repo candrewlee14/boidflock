@@ -3,7 +3,10 @@ use structopt::StructOpt;
 #[derive(Debug, StructOpt, Clone, Default)]
 #[structopt(
     name = "Boid Flocking Simulation",
-    about = "A flocking simulation built in Rust with ggez"
+    about = "A flocking simulation built in Rust with ggez",
+    author = "Andrew Lee",
+    no_version,
+    global_settings = &[structopt::clap::AppSettings::ColoredHelp]
 )]
 #[allow(non_snake_case)]
 pub struct BoidSimOpt {
