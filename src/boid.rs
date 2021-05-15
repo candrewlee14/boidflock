@@ -19,17 +19,18 @@ pub struct Boid {
     /// (x, y) velocity of Boid
     pub vel: Vector2,
 }
-pub fn get_cell_for_point(pos: Point2, width: f32, opt: &BoidSimOpt) -> usize {
-    ((pos[1] / opt.VISUAL_RANGE).floor() * (width / opt.VISUAL_RANGE).floor()
-    + (pos[0] / opt.VISUAL_RANGE).floor()) as usize
+pub fn get_cell_for_point(pos: Point2, width: f32, height: f32, opt: &BoidSimOpt) -> usize {
+    ((pos[1].clamp(0., height - 0.01) / opt.VISUAL_RANGE).floor()
+        * (width / opt.VISUAL_RANGE).floor()
+        + (pos[0].clamp(0., width - 0.01) / opt.VISUAL_RANGE).floor()) as usize
 }
 
 impl Boid {
     pub fn new(pos: Point2, vel: Vector2) -> Self {
         Self { pos, vel }
     }
-    pub fn get_cell(&self, width: f32, opt: &BoidSimOpt) -> usize {
-        get_cell_for_point(self.pos, width, opt)
+    pub fn get_cell(&self, width: f32, height: f32, opt: &BoidSimOpt) -> usize {
+        get_cell_for_point(self.pos, width, height, opt)
     }
     pub fn fly_towards_center(&mut self, closest: &Vec<Boid>, opt: &BoidSimOpt) {
         let mut neighbor_count: f32 = 0.;

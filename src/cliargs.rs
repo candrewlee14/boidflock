@@ -59,11 +59,11 @@ pub struct BoidSimOpt {
 
     /// Pixel distance from screen edge for boids to turn away from
     /// to stay on screen : [0, INF)
-    #[structopt(long, default_value = "50.")]
+    #[structopt(long, default_value = "20.")]
     pub EDGE_TURN_MARGIN: f32,
 
     /// Coefficient to turn away from screen edges : [0, 1]
-    #[structopt(long, default_value = "0.8")]
+    #[structopt(long, default_value = "0.2")]
     pub EDGE_TURN_FACTOR: f32,
 
     /// Scale for boid image : [0, INF)
