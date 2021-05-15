@@ -13,6 +13,7 @@ rand = "*"
 palette = "*"
 structopt = {version="0.3", features=["color", "suggestions"]}
 rand_xoshiro = "*"
+rayon = "*"
 
 [dev-dependencies]
 criterion = {version= "0.3", features=["html_reports"]}

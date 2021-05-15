@@ -14,18 +14,22 @@ use palette::{rgb::Rgb, Hsl, RgbHue};
 
 #[derive(Debug, Clone, Copy)]
 pub struct Boid {
+    /// (x, y) position of Boid
     pub pos: Point2,
+    /// (x, y) velocity of Boid
     pub vel: Vector2,
-    pub min_dist: f32,
+}
+pub fn get_cell_for_point(pos: Point2, width: f32, opt: &BoidSimOpt) -> usize {
+    ((pos[1] / opt.VISUAL_RANGE).floor() * (width / opt.VISUAL_RANGE).floor()
+    + (pos[0] / opt.VISUAL_RANGE).floor()) as usize
 }
 
 impl Boid {
     pub fn new(pos: Point2, vel: Vector2) -> Self {
-        Self {
-            pos,
-            vel,
-            min_dist: 20.,
-        }
+        Self { pos, vel }
+    }
+    pub fn get_cell(&self, width: f32, opt: &BoidSimOpt) -> usize {
+        get_cell_for_point(self.pos, width, opt)
     }
     pub fn fly_towards_center(&mut self, closest: &Vec<Boid>, opt: &BoidSimOpt) {
         let mut neighbor_count: f32 = 0.;
@@ -38,8 +42,8 @@ impl Boid {
         }
         if neighbor_count > 0. {
             center /= neighbor_count;
-            self.vel += (center - self.pos) * opt.COHERENCE
-        };
+            self.vel += (center - self.pos) * opt.COHERENCE;
+        }
     }
     pub fn avoid_other_boids(&mut self, closest: &Vec<Boid>, opt: &BoidSimOpt) {
         let mut delta = Vector2::new(0., 0.);
@@ -111,11 +115,7 @@ impl Boid {
         facing
     }
     fn get_color(&self) -> Color {
-        let hslcol = Hsl::new(
-            RgbHue::from_radians(self.facing_angle()),
-            1. - self.min_dist / 80.,
-            0.5,
-        );
+        let hslcol = Hsl::new(RgbHue::from_radians(self.facing_angle()), 1., 0.5);
         let rgbcol: Rgb = hslcol.into();
         Color::new(rgbcol.red, rgbcol.green, rgbcol.blue, 1.)
     }
