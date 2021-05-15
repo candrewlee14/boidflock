@@ -69,4 +69,8 @@ pub struct BoidSimOpt {
     /// Scale for boid image : [0, INF)
     #[structopt(long, default_value = "0.32")]
     pub IMG_SCALE: f32,
+
+    /// Scale to zoom. Above 1 zooms in, below 1 down to 0 zooms out : [0, INF)
+    #[structopt(long, default_value = "1.")]
+    pub ZOOM_SCALE: f32,
 }

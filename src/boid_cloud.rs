@@ -5,7 +5,6 @@ pub use ggez::{
 pub use glam::Vec2;
 pub use rand::prelude::*;
 use rand_xoshiro::Xoroshiro128Plus;
-pub use rayon::prelude::*;
 pub use std::collections::HashSet;
 
 pub type Vector2 = Vec2;
@@ -80,7 +79,7 @@ impl BoidCloud {
                         return angle >= -self.opt.SIGHT_ANGLE / 2.
                             && angle <= self.opt.SIGHT_ANGLE / 2.;
                     })
-                    .chain(self.boid_cells[forward_cell.clamp(0, self.boid_cells.len())].iter())
+                    .chain(self.boid_cells[forward_cell.clamp(0, self.boid_cells.len()-1)].iter())
                     .cloned()
                     .collect();
                 boid.fly_towards_center(&close_boids, &self.opt);

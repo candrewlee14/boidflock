@@ -58,7 +58,9 @@ struct MainState {
 impl MainState {
     pub fn new(ctx: &mut Context, opt: BoidSimOpt) -> GameResult<Self> {
         let mut rng = Xoroshiro128Plus::from_entropy();
-        let (width, height) = graphics::drawable_size(ctx);
+        let (mut width, mut height) = graphics::drawable_size(ctx);
+        width /= opt.ZOOM_SCALE;
+        height /= opt.ZOOM_SCALE;
         let boid_cloud = BoidCloud::new(opt.BOID_COUNT, width, height, &mut rng, opt);
         let assets = Assets::new(ctx)?;
         let img_batch = SpriteBatch::new(assets.boid_image.clone());
@@ -84,8 +86,8 @@ impl EventHandler for MainState {
     fn resize_event(&mut self, _ctx: &mut Context, width: f32, height: f32) {
         self.width = width;
         self.height = height;
-        self.boid_cloud.width = width;
-        self.boid_cloud.height = height;
+        self.boid_cloud.width = width / self.boid_cloud.opt.ZOOM_SCALE;
+        self.boid_cloud.height = height / self.boid_cloud.opt.ZOOM_SCALE;
     }
 
     fn key_down_event(

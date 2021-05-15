@@ -122,10 +122,10 @@ impl Boid {
     }
     pub fn get_drawparam(&self, opt: &BoidSimOpt) -> DrawParam {
         graphics::DrawParam::new()
-            .dest(self.pos)
+            .dest(self.pos * opt.ZOOM_SCALE)
             .rotation(self.facing_angle())
             .offset(Point2::new(0.5, 0.5))
-            .scale(Vec2::new(opt.IMG_SCALE, opt.IMG_SCALE))
+            .scale(Vec2::new(opt.IMG_SCALE * opt.ZOOM_SCALE, opt.IMG_SCALE * opt.ZOOM_SCALE))
             .color(self.get_color())
     }
     pub fn keep_within_bounds(&mut self, width: f32, height: f32, opt: &BoidSimOpt) {
