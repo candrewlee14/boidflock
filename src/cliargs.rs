@@ -38,6 +38,10 @@ pub struct BoidSimOpt {
     #[structopt(long, default_value = "2.3")]
     pub SIGHT_ANGLE: f32,
 
+    /// Samples to take get cells within sight angle range : [1, INF)
+    #[structopt(long, default_value = "3")]
+    pub SIGHT_SAMPLES: usize,
+
     /// Max random velocity rotation angle for boids : [0, 2*PI]
     #[structopt(long, default_value = "0.3")]
     pub MAX_RAND_ROTATE: f32,
