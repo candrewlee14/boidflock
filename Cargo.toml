@@ -1,18 +1,18 @@
 [package]
-name = "boids"
+name = "boidflock"
 version = "0.1.0"
-authors = ["Chris.Lee"]
+authors = ["Andrew Lee <candrewlee14@gmail.com>"]
 edition = "2018"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-ggez = {version="0.5", features=[]}
-glam = {version="*", features=["mint"]}
-rand = "*"
-palette = "*"
+ggez = "0.5"
+glam = {version="0.15", features=["mint"]}
+rand = "0.8"
+palette = "0.5"
 structopt = {version="0.3", features=["color", "suggestions"]}
-rand_xoshiro = "*"
+rand_xoshiro = "0.6"
 
 [dev-dependencies]
 criterion = {version= "0.3", features=["html_reports"]}
