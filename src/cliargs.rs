@@ -6,17 +6,13 @@ use structopt::StructOpt;
     about = "A flocking simulation built in Rust with ggez",
     author = "Andrew Lee",
     no_version,
-    global_settings = &[structopt::clap::AppSettings::ColoredHelp]
+    global_settings = &[structopt::clap::AppSettings::ColoredHelp, structopt::clap::AppSettings::DeriveDisplayOrder]
 )]
 #[allow(non_snake_case)]
 pub struct BoidSimOpt {
     /// Count of boids to simulate : [0, INF)
     #[structopt(long, default_value = "2000")]
     pub BOID_COUNT: usize,
-
-    /// Max random velocity rotation angle for boids : [0, 2*PI]
-    #[structopt(long, default_value = "0.3")]
-    pub MAX_RAND_ROTATE: f32,
 
     /// Coefficient for boid aiming for center of local neighbor mass : [0, 1]
     #[structopt(long, default_value = "0.035")]
@@ -41,6 +37,10 @@ pub struct BoidSimOpt {
     /// Sight pie-slice angle for each boid in radians : [0, 2*PI]
     #[structopt(long, default_value = "2.3")]
     pub SIGHT_ANGLE: f32,
+
+    /// Max random velocity rotation angle for boids : [0, 2*PI]
+    #[structopt(long, default_value = "0.3")]
+    pub MAX_RAND_ROTATE: f32,
 
     /// Minimum boid velocity in pixels : [0, MAX_VELOC]
     #[structopt(long, default_value = "3.")]
