@@ -86,8 +86,6 @@ impl EventHandler for MainState {
     fn resize_event(&mut self, _ctx: &mut Context, width: f32, height: f32) {
         self.width = width;
         self.height = height;
-        self.boid_cloud.width = width / self.boid_cloud.opt.ZOOM_SCALE;
-        self.boid_cloud.height = height / self.boid_cloud.opt.ZOOM_SCALE;
     }
 
     fn key_down_event(

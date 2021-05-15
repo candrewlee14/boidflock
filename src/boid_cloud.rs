@@ -70,7 +70,8 @@ impl BoidCloud {
                     self.width,
                     self.height,
                     &self.opt,
-                );
+                )
+                .clamp(0, self.boid_cells.len() - 1);
                 let close_boids = self.boid_cells[cell_num]
                     .iter()
                     .filter(|other| {
@@ -79,7 +80,8 @@ impl BoidCloud {
                         return angle >= -self.opt.SIGHT_ANGLE / 2.
                             && angle <= self.opt.SIGHT_ANGLE / 2.;
                     })
-                    .chain(self.boid_cells[forward_cell.clamp(0, self.boid_cells.len()-1)].iter())
+                    .chain(self.boid_cells[forward_cell].iter())
+                    .take(self.opt.MAX_NEIGHBORS)
                     .cloned()
                     .collect();
                 boid.fly_towards_center(&close_boids, &self.opt);
@@ -90,8 +92,9 @@ impl BoidCloud {
                 boid.keep_within_bounds(self.width, self.height, &self.opt);
                 boid.update_pos();
                 self.boid_cells[cell_num][i] = boid;
-                let correct_cell =
-                    self.boid_cells[cell_num][i].get_cell(self.width, self.height, &self.opt);
+                let correct_cell = self.boid_cells[cell_num][i]
+                    .get_cell(self.width, self.height, &self.opt)
+                    .clamp(0, self.boid_cells.len() - 1);
                 if correct_cell != cell_num {
                     let boid = self.boid_cells[cell_num].swap_remove(i);
                     self.boid_cells[correct_cell].push(boid);
@@ -101,42 +104,6 @@ impl BoidCloud {
             }
         }
     }
-    // pub fn update(&mut self, rng: &mut Xoroshiro128Plus) {
-    //     let opt = self.opt.clone();
-    //     let boids = self.boids.clone();
-    //     for mut boid in self.boids.iter_mut() {
-    //         if self.boid_count >= self.opt.MAX_NEIGHBORS {
-    //             let mut dist_and_closest = boids
-    //                 .iter()
-    //                 .filter_map(|other| {
-    //                     if let Some(dist) = boid.get_dist_if_in_sight(other, &opt) {
-    //                         return Some((dist, *other));
-    //                     }
-    //                     None
-    //                 })
-    //                 .take(self.opt.NEIGHBORS_TO_SEE)
-    //                 .collect::<Vec<(f32, Boid)>>();
-    //             if dist_and_closest.len() > self.opt.MAX_NEIGHBORS {
-    //                 dist_and_closest.sort_unstable_by(|a, b| a.0.partial_cmp(&b.0).unwrap());
-    //             }
-    //             let closest: Vec<Boid> = dist_and_closest
-    //                 .iter()
-    //                 .take(self.opt.MAX_NEIGHBORS)
-    //                 .map(|tup| tup.1)
-    //                 .collect();
-    //             if !closest.is_empty() {
-    //                 boid.min_dist = boid.distance_to(&closest[0]);
-    //                 boid.fly_towards_center(&closest, &self.opt);
-    //                 boid.avoid_other_boids(&closest, &self.opt);
-    //                 boid.match_velocities(&closest, &self.opt);
-    //             }
-    //         }
-    //         boid.random_vel_change(rng, &self.opt);
-    //         boid.limit_speed(&self.opt);
-    //         boid.keep_within_bounds(self.width, self.height, &self.opt);
-    //         boid.update_pos();
-    //     }
-    //}
 
     pub fn add_boids_to_spritebatch(&self, img_batch: &mut SpriteBatch) {
         for boid in self.boid_cells.iter().flatten() {

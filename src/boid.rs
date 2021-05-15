@@ -20,9 +20,9 @@ pub struct Boid {
     pub vel: Vector2,
 }
 pub fn get_cell_for_point(pos: Point2, width: f32, height: f32, opt: &BoidSimOpt) -> usize {
-    ((pos[1].clamp(0., height - 0.01) / opt.VISUAL_RANGE).floor()
+    ((pos[1].clamp(0., height - 1.) / opt.VISUAL_RANGE).floor()
         * (width / opt.VISUAL_RANGE).floor()
-        + (pos[0].clamp(0., width - 0.01) / opt.VISUAL_RANGE).floor()) as usize
+        + (pos[0].clamp(0., width - 1.) / opt.VISUAL_RANGE).floor()) as usize
 }
 
 impl Boid {
@@ -125,7 +125,10 @@ impl Boid {
             .dest(self.pos * opt.ZOOM_SCALE)
             .rotation(self.facing_angle())
             .offset(Point2::new(0.5, 0.5))
-            .scale(Vec2::new(opt.IMG_SCALE * opt.ZOOM_SCALE, opt.IMG_SCALE * opt.ZOOM_SCALE))
+            .scale(Vec2::new(
+                opt.IMG_SCALE * opt.ZOOM_SCALE,
+                opt.IMG_SCALE * opt.ZOOM_SCALE,
+            ))
             .color(self.get_color())
     }
     pub fn keep_within_bounds(&mut self, width: f32, height: f32, opt: &BoidSimOpt) {
