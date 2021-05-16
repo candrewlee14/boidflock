@@ -50,6 +50,7 @@ struct MainState {
     width: f32,
     height: f32,
     boid_cloud: BoidCloud,
+    #[allow(dead_code)]
     assets: Assets,
     rng: Xoroshiro128Plus,
     img_batch: SpriteBatch,
@@ -80,8 +81,6 @@ impl MainState {
 
 impl EventHandler for MainState {
     fn update(&mut self, _ctx: &mut Context) -> GameResult<()> {
-        // let _boids = self.boid_cloud.boids.clone();
-        // let _optclone = self.boid_cloud.opt.clone();
         self.boid_cloud.update(&mut self.rng);
         Ok(())
     }

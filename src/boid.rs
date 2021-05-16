@@ -75,6 +75,7 @@ impl Boid {
             glam::Mat2::from_cols_array(&[angle.cos(), angle.sin(), -angle.sin(), angle.cos()]);
         self.vel = rot_matr * self.vel;
     }
+    #[allow(dead_code)]
     pub fn distance_to(&self, other: &Self) -> f32 {
         self.pos.distance(other.pos)
     }
@@ -86,6 +87,7 @@ impl Boid {
         }
         false
     }
+    #[allow(dead_code)]
     pub fn get_dist_if_in_sight(&self, other: &Self, opt: &BoidSimOpt) -> Option<f32> {
         let dist = self.distance_to(other);
         if dist < opt.VISUAL_RANGE {

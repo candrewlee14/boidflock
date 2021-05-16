@@ -7,8 +7,7 @@ pub use rand::prelude::*;
 use rand_xoshiro::Xoroshiro128Plus;
 pub use std::collections::HashSet;
 
-pub type Vector2 = Vec2;
-use crate::boid::{get_cell_for_point, Boid, Point2};
+use crate::boid::{get_cell_for_point, Boid};
 use crate::cliargs::BoidSimOpt;
 
 fn rand_vec2(rng: &mut Xoroshiro128Plus, max_1: f32, max_2: f32, centered: bool) -> Vec2 {
@@ -65,12 +64,6 @@ impl BoidCloud {
             let mut i = 0;
             while i < self.boid_cells[cell_num].len() {
                 let mut boid = self.boid_cells[cell_num][i];
-                let forward_cell = get_cell_for_point(
-                    boid.pos + boid.vel.normalize() * self.opt.VISUAL_RANGE,
-                    self.width,
-                    self.height,
-                    &self.opt,
-                );
                 let mut close_boids: Vec<Boid> = Vec::with_capacity(self.opt.CUR_CELL_NEIGHBORS);
                 let angle = self.opt.SIGHT_ANGLE / 2.;
                 let rot_matr = glam::Mat2::from_cols_array(&[
