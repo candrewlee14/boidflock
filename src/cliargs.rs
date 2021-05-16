@@ -12,7 +12,7 @@ use structopt::StructOpt;
 pub struct BoidSimOpt {
     /// Seed to determine initial positions and random rotations applied to boids.
     /// This make the simulation deterministic.
-    /// If set to default 0, the seed will be randomly generate : u64
+    /// If set to default 0, the seed will be randomly generated : u64
     #[structopt(long, default_value="0")]
     pub SEED: u64,
 

@@ -29,13 +29,16 @@ Running `cargo run --release -- --help` yields a screen with the options shown b
     A flocking simulation built in Rust with ggez
 
     USAGE:
-        boids.exe [OPTIONS]
+        boidflock.exe [OPTIONS]
 
     FLAGS:
         -h, --help       Prints help information
         -V, --version    Prints version information
 
     OPTIONS:
+            --seed <seed>
+                Seed to determine initial positions and random rotations applied to boids. This make the simulation
+                deterministic. If set to default 0, the seed will be randomly generated : u64 [default: 0]
             --boid-count <boid-count>                            Count of boids to simulate : [0, INF) [default: 2000]
             --coherence <coherence>
                 Coefficient for boid aiming for center of local neighbor mass : [0, 1] [default: 0.035]
@@ -82,7 +85,6 @@ Running `cargo run --release -- --help` yields a screen with the options shown b
             --img-scale <img-scale>                              Scale for boid image : [0, INF) [default: 0.32]
             --zoom-scale <zoom-scale>
                 Scale to zoom. Above 1 zooms in, below 1 down to 0 zooms out : [0, INF) [default: 0.8]
-
 
 ## Information
 
