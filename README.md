@@ -4,7 +4,18 @@ This is a Rust implementation of a boid flocking simulation using the ggez graph
 
 The CLI for this program is built using the structopt crate.
 
-<img src="https://repository-images.githubusercontent.com/364743636/4c202000-b535-11eb-8d51-20fd3b01c88f">
+## Examples
+
+`cargo run --release`
+<img src="./default.gif">
+
+
+`cargo run --release -- --zoom-scale 0.7 --visual-range 150 --avoid-range 30 --sight-angle 1. --coherence .7`
+<img src="./example1.gif">
+
+`cargo run --release -- --boid-count 12000 --zoom-scale .35 --visual-range 120 --sight-angle 1.5 --avoid-range 30 --alignment .95 --coherence .45`
+<img src="./example2.gif">
+
 
 ## Configuration
 
