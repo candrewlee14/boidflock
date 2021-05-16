@@ -58,6 +58,9 @@ struct MainState {
 impl MainState {
     pub fn new(ctx: &mut Context, opt: BoidSimOpt) -> GameResult<Self> {
         let mut rng = Xoroshiro128Plus::from_entropy();
+        if opt.SEED != 0 {
+            rng = Xoroshiro128Plus::seed_from_u64(opt.SEED);
+        }
         let (mut width, mut height) = graphics::drawable_size(ctx);
         width /= opt.ZOOM_SCALE;
         height /= opt.ZOOM_SCALE;
