@@ -10,6 +10,11 @@ pub use std::collections::HashSet;
 use crate::boid::{get_cell_for_point, Boid};
 use crate::cliargs::BoidSimOpt;
 
+// Used because ggez error forces version of rust 1.47 where .clamp is unstable
+fn clamp_usize(num: usize, min: usize, max: usize) -> usize {
+    max.min(num.max(min))
+}
+
 fn rand_vec2(rng: &mut Xoroshiro128Plus, max_1: f32, max_2: f32, centered: bool) -> Vec2 {
     let mut x1 = rng.gen::<f32>();
     let mut x2 = rng.gen::<f32>();
@@ -110,9 +115,11 @@ impl BoidCloud {
                 boid.keep_within_bounds(self.width, self.height, &self.opt);
                 boid.update_pos();
                 self.boid_cells[cell_num][i] = boid;
-                let correct_cell = self.boid_cells[cell_num][i]
-                    .get_cell(self.width, self.height, &self.opt)
-                    .clamp(0, self.boid_cells.len() - 1);
+                let correct_cell = clamp_usize(
+                    self.boid_cells[cell_num][i].get_cell(self.width, self.height, &self.opt),
+                    0,
+                    self.boid_cells.len() - 1,
+                );
                 if correct_cell != cell_num {
                     let boid = self.boid_cells[cell_num].swap_remove(i);
                     self.boid_cells[correct_cell].push(boid);

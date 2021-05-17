@@ -12,6 +12,11 @@ pub type Vector2 = Vec2;
 use super::cliargs::BoidSimOpt;
 use palette::{rgb::Rgb, Hsl, RgbHue};
 
+// Used because ggez error forces version of rust 1.47 where .clamp is unstable
+fn clamp_f32(num: f32, min: f32, max: f32) -> f32 {
+    max.min(num.max(min))
+}
+
 #[derive(Debug, Clone, Copy)]
 pub struct Boid {
     /// (x, y) position of Boid
@@ -20,9 +25,9 @@ pub struct Boid {
     pub vel: Vector2,
 }
 pub fn get_cell_for_point(pos: Point2, width: f32, height: f32, opt: &BoidSimOpt) -> usize {
-    ((pos[1].clamp(0., height - 1.) / opt.VISUAL_RANGE).floor()
+    ((clamp_f32(pos[1], 0., height - 1.) / opt.VISUAL_RANGE).floor()
         * (width / opt.VISUAL_RANGE).floor()
-        + (pos[0].clamp(0., width - 1.) / opt.VISUAL_RANGE).floor()) as usize
+        + (clamp_f32(pos[0], 0., width - 1.) / opt.VISUAL_RANGE).floor()) as usize
 }
 
 impl Boid {
